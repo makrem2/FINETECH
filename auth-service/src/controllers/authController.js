@@ -4,7 +4,6 @@ const User = require("../models/userModel");
 
 const SECRET_KEY = "secret_key";
 
-// Register a new user
 exports.register = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -16,7 +15,6 @@ exports.register = async (req, res) => {
   }
 };
 
-// Login user
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {

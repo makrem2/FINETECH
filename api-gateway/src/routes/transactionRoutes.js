@@ -3,10 +3,8 @@ const axios = require("axios");
 const authMiddleware = require('../shared/middleware/authMiddleware');
 const router = express.Router();
 
-// Base URL for Transaction Service
 const TRANSACTION_SERVICE_URL = "http://localhost:3003/transactions";
 
-// Route to initiate a fund transfer
 router.post('/transfer', authMiddleware, async (req, res) => {
   try {
       const response = await axios.post(`${TRANSACTION_SERVICE_URL}/transfer`, req.body, {
@@ -18,7 +16,6 @@ router.post('/transfer', authMiddleware, async (req, res) => {
   }
 });
 
-// Route to get transactions for a specific account
 router.get("/:accountId", authMiddleware, async (req, res) => {
   try {
     const { accountId } = req.params;

@@ -3,7 +3,6 @@ const axios = require('axios');
 const authMiddleware = require('../shared/middleware/authMiddleware');
 const router = express.Router();
 
-// Base URL for Account Service
 const ACCOUNT_SERVICE_URL = 'http://localhost:3002/accounts';
 
 // Route to create a new account

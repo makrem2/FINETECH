@@ -40,7 +40,6 @@ exports.updateAccountBalance = async (req, res) => {
           return res.status(404).json({ error: 'Account not found' });
       }
 
-      // Update balance
       account.balance = req.body.balance;
       await account.save();
 
