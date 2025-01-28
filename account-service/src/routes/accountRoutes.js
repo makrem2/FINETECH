@@ -8,7 +8,8 @@ const {
 const router = express.Router();
 
 router.post("/", createAccount);
-router.get("/:userId", getAccountsByUser);
+
+router.get("/getAccountsByUser/:userId", getAccountsByUser);
 
 router.get("/:id", getAccountById);
 
