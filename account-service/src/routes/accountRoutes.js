@@ -13,6 +13,6 @@ router.get("/getAccountsByUser/:userId", getAccountsByUser);
 
 router.get("/:id", getAccountById);
 
-router.patch("/:id", updateAccountBalance);
+router.patch("/updateAccountBalance/:id", updateAccountBalance);
 
 module.exports = router;

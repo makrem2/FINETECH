@@ -44,11 +44,11 @@ exports.transfer = async (req, res) => {
     const newTargetBalance = targetBalance + amountNum;
 
     // Update source and target accounts
-    await axios.patch(`${ACCOUNT_SERVICE_URL}/${accountSource}`, {
+    await axios.patch(`${ACCOUNT_SERVICE_URL}/updateAccountBalance/${accountSource}`, {
       balance: newSourceBalance.toFixed(2), // Ensure two decimal places as string if needed
     });
 
-    await axios.patch(`${ACCOUNT_SERVICE_URL}/${accountTarget}`, {
+    await axios.patch(`${ACCOUNT_SERVICE_URL}/updateAccountBalance/${accountTarget}`, {
       balance: newTargetBalance.toFixed(2),
     });
 
@@ -66,5 +66,33 @@ exports.transfer = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
+  }
+};
+
+// // Get transactions where the user sent money
+exports.getTransactionsSentMoney = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const transactions = await Transaction.findAll({
+      where: { accountSource: userId },
+      order: [["createdAt", "DESC"]],
+    });
+    res.json(transactions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error retrieving sent transactions" });
+  }
+};
+exports.getTransactionsReceivedMoney = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const transactions = await Transaction.findAll({
+      where: { accountTarget: userId },
+      order: [["createdAt", "DESC"]],
+    });
+    res.json(transactions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error retrieving sent transactions" });
   }
 };

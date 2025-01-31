@@ -5,6 +5,7 @@ const sequelize = createDatabaseConnection("account_service");
 
 const Account = sequelize.define("Account", {
   userId: { type: DataTypes.INTEGER, allowNull: false },
+  accountType: { type: DataTypes.STRING, allowNull: false },
   balance: { type: DataTypes.DECIMAL(15, 2), defaultValue: 0.0 },
 });
 

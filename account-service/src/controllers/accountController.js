@@ -1,9 +1,9 @@
 const Account = require("../models/accountModel");
 
 exports.createAccount = async (req, res) => {
-  const { userId, balance } = req.body;
+  const { userId, balance, accountType } = req.body;
   try {
-    const account = await Account.create({ userId, balance });
+    const account = await Account.create({ userId, balance, accountType });
     res.status(201).json(account);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -12,13 +12,13 @@ exports.createAccount = async (req, res) => {
 
 exports.getAccountById = async (req, res) => {
   try {
-      const account = await Account.findByPk(req.params.id);
-      if (!account) {
-          return res.status(404).json({ error: 'Account not found' });
-      }
-      res.status(200).json(account);
+    const account = await Account.findByPk(req.params.id);
+    if (!account) {
+      return res.status(404).json({ error: "Account not found" });
+    }
+    res.status(200).json(account);
   } catch (error) {
-      res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -32,19 +32,18 @@ exports.getAccountsByUser = async (req, res) => {
   }
 };
 
-
 exports.updateAccountBalance = async (req, res) => {
   try {
-      const account = await Account.findByPk(req.params.id);
-      if (!account) {
-          return res.status(404).json({ error: 'Account not found' });
-      }
+    const account = await Account.findByPk(req.params.id);
+    if (!account) {
+      return res.status(404).json({ error: "Account not found" });
+    }
 
-      account.balance = req.body.balance;
-      await account.save();
+    account.balance = req.body.balance;
+    await account.save();
 
-      res.status(200).json({ message: 'Account updated successfully', account });
+    res.status(200).json({ message: "Account updated successfully", account });
   } catch (error) {
-      res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
