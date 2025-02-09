@@ -1,19 +1,55 @@
 const jwt = require('jsonwebtoken');
-const SECRET_KEY = 'secret_key';
+const axios = require('axios');
+const AUTH_SERVICE_URL = 'http://localhost:3001/auth';
+const config = require("../utils/auth.config");
 
-const authMiddleware = (req, res, next) => {
-    const token = req.headers['authorization'];
-    if (!token) {
-        return res.status(401).json({ message: 'Authorization token required' });
+
+// Middleware to verify token
+const verifyToken = async (req, res, next) => {
+  let token = req.headers['authorization'] || req.headers["x-access-token"];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Authorization token required' });
+  }
+  // Handle 'Bearer <token>' format
+  if (token.startsWith('Bearer ')) {
+    token = token.slice(7).trim();
+  }
+  try {
+    // Verify token signature
+    const decoded = jwt.verify(token, config.secret);
+    req.user = decoded;
+
+    // Check if token is blacklisted by querying auth-service
+    const response = await axios.get(`${AUTH_SERVICE_URL}/tokenBlacklist/${token}`);
+    console.log(response.data.isBlacklisted)
+    if (response.data.isBlacklisted) {
+      return res.status(403).json({ message: 'Token expired! Please login again!' });
     }
-    try {
-        const decoded = jwt.verify(token.replace('Bearer ', ''), SECRET_KEY);
-        req.user = decoded;
-        next();
-    } catch (error) {
-        console.error('Token verification failed:', error.message);
-        return res.status(403).json({ message: 'Invalid or expired token' });
-    }
+    next();
+  } catch (error) {
+    console.error('Token verification failed:', error.message);
+    return res.status(403).json({ message: 'Invalid or expired token' });
+  }
 };
 
-module.exports = authMiddleware;
+// Middleware to check roles (admin/user)
+const hasRole = (role) => {
+  return (req, res, next) => {
+    // The token has already been verified in verifyToken middleware
+    const userRole = req.user.role; // Role extracted from token
+
+    if (userRole === role) {
+      return next(); // Role matches, proceed
+    }
+
+    return res.status(403).send({
+      message: `Require ${role.charAt(0).toUpperCase() + role.slice(1)} Role!`,
+    });
+  };
+};
+
+const isAdmin = hasRole("admin");
+const isUser = hasRole("user");
+
+module.exports = { verifyToken, isAdmin,isUser };

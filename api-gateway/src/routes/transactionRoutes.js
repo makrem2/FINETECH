@@ -1,11 +1,10 @@
 const express = require("express");
 const axios = require("axios");
-const authMiddleware = require('../shared/middleware/authMiddleware');
 const router = express.Router();
 
 const TRANSACTION_SERVICE_URL = "http://localhost:3003/transactions";
 
-router.post('/transfer', authMiddleware, async (req, res) => {
+router.post('/transfer', async (req, res) => {
   try {
       const response = await axios.post(`${TRANSACTION_SERVICE_URL}/transfer`, req.body, {
           headers: { Authorization: req.headers.authorization }, // Forward JWT token
@@ -16,7 +15,7 @@ router.post('/transfer', authMiddleware, async (req, res) => {
   }
 });
 
-router.get("/:accountId", authMiddleware, async (req, res) => {
+router.get("/:accountId", async (req, res) => {
   try {
     const { accountId } = req.params;
     const response = await axios.get(`${TRANSACTION_SERVICE_URL}/${accountId}`);

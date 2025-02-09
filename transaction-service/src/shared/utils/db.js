@@ -5,7 +5,7 @@ const createDatabaseConnection = (dbName) => {
     return new Sequelize(dbName, 'root', 'Makrem@50851779', {
         host: 'localhost',
         dialect: 'mysql',
-        port: 3306, // Default MySQL port
+        port: 3306,
         pool: {
             max: 5,
             min: 0,

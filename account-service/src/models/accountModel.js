@@ -7,6 +7,7 @@ const Account = sequelize.define("Account", {
   userId: { type: DataTypes.INTEGER, allowNull: false },
   accountType: { type: DataTypes.STRING, allowNull: false },
   balance: { type: DataTypes.DECIMAL(15, 2), defaultValue: 0.0 },
+  status: { type: DataTypes.ENUM("active", "suspended", "closed"), defaultValue: "active" }
 });
 
 sequelize.sync();
