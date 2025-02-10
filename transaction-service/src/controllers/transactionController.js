@@ -3,9 +3,19 @@ const Transaction = require("../models/transactionModel");
 const ACCOUNT_SERVICE_URL = "http://localhost:3002/accounts";
 
 exports.transfer = async (req, res) => {
-  const { accountSource, accountTarget, amount } = req.body;
+  const { accountSource, accountTarget, amount, transactionType } = req.body;
 
   try {
+    if (transactionType) {
+      if (transactionType !== "deposit" && transactionType !== "withdrawal") {
+        return res.status(400).json({ error: "Invalid transaction type" });
+      }
+    }
+
+    if (!transactionType) {
+      return res.status(404).json({ error: "transactionType are required" });
+    }
+
     // Validate amount is a positive number
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
@@ -44,19 +54,26 @@ exports.transfer = async (req, res) => {
     const newTargetBalance = targetBalance + amountNum;
 
     // Update source and target accounts
-    await axios.patch(`${ACCOUNT_SERVICE_URL}/updateAccountBalance/${accountSource}`, {
-      balance: newSourceBalance.toFixed(2), // Ensure two decimal places as string if needed
-    });
+    await axios.patch(
+      `${ACCOUNT_SERVICE_URL}/updateAccountBalance/${accountSource}`,
+      {
+        balance: newSourceBalance.toFixed(2), // Ensure two decimal places as string if needed
+      }
+    );
 
-    await axios.patch(`${ACCOUNT_SERVICE_URL}/updateAccountBalance/${accountTarget}`, {
-      balance: newTargetBalance.toFixed(2),
-    });
+    await axios.patch(
+      `${ACCOUNT_SERVICE_URL}/updateAccountBalance/${accountTarget}`,
+      {
+        balance: newTargetBalance.toFixed(2),
+      }
+    );
 
     // Create transaction
     const transaction = await Transaction.create({
       accountSource,
       accountTarget,
       amount: amountNum,
+      transactionType
     });
 
     res.status(201).json({
@@ -68,8 +85,6 @@ exports.transfer = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-// // Get transactions where the user sent money
 exports.getTransactionsSentMoney = async (req, res) => {
   const { userId } = req.params;
   try {

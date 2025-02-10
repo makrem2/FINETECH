@@ -108,7 +108,7 @@ exports.login = async (req, res) => {
           "Vous devez vérifier votre adresse électronique avant de vous connecter.",
       });
     }
-    if (!user.isBlocked) {
+    if (user.isBlocked) {
       return res.status(401).send({
         message: "Votre compte est bloqué. Contactez l'administrateur.",
       });
@@ -210,3 +210,48 @@ exports.ChecktokenBlacklist =async (req,res)=>{
 
   res.json({ isBlacklisted: false });
 }
+exports.updateUser = async (req, res) => {
+  const { id } = req.params;
+  const { email, name, phone, address } = req.body;
+
+  try {
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    user.email = email || user.email;
+    user.name = name || user.name;
+    user.phone = phone || user.phone;
+    user.address = address || user.address;
+
+    await user.save();
+
+    res.json({ message: "User updated successfully", user });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ error: "An error occurred while updating the user" });
+  }
+};
+exports.deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if(user.isAdmin){
+      return res.status(403).json({ message: "Cannot delete an admin user" });
+    }
+
+    await user.destroy();
+
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "An error occurred while deleting the user" });
+  }
+};
